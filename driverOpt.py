@@ -1,13 +1,15 @@
 import pandas as pd
 import numpy as np
-import sys,csv
+import sys
 
 driverData  = pd.read_csv('./driverData.csv')
-driverList  = driverData["DRIVER"]
-driverTeam  = driverData["TEAM"]
-driverCosts = driverData["COST"]
-qualiPos    = driverData["QUALIPOS"]
-racePos     = driverData["RACEPOS"]
+driverList  = driverData["DRIVER"].values
+driverTeam  = driverData["TEAM"].values
+driverCosts = driverData["COST"].values
+qualiPos    = driverData["QUALIPOS"].values
+racePos     = driverData["RACEPOS"].values
+pFinish     = driverData["PFINISH"].values
+pDNF        = 1.-pFinish
 
 currentTeam = ["MER","LEC","SAI","NOR","BOT","MAG"]
 
@@ -57,7 +59,7 @@ for dI,dT,qP in zip(range(len(driverList)),driverTeam,qualiPos):
         teamMateQualiPoints.append(0)
 
 """ Total driver points """
-driverPoints = qualiPoints[qualiPos-1] + racePoints[racePos-1] + knockOutPnts + chngPosPnts + teamMateQualiPoints + teamMateRcePoints + 1
+driverPoints = qualiPoints[qualiPos-1] + knockOutPnts + teamMateQualiPoints + pFinish*(racePoints[racePos-1] + chngPosPnts + teamMateRcePoints + 1) + pDNF*(-10.)
 
 """ Order driver in points """
 sortedPoints, sortedDrivers, sortedCosts = zip(*sorted(zip(driverPoints,driverList,driverCosts)))
@@ -93,7 +95,7 @@ for team in teamsList:
                         iterationInd += 1
                         totalCost = c1+c2+c3+c4+c5+teamCostsDict[team]
                         if(totalCost>100.):continue
-                        teamPoints   = np.sum(driverPoints[np.where(driverTeam==team)])-3-2
+                        teamPoints   = np.sum(driverPoints[np.where(driverTeam==team)])-3-2 #NB the -2 might be wrong for pFinish!=1
                         lineUpCosts  = np.array([c1,c2,c3,c4,c5])
                         driverLineUp = np.array([d1,d2,d3,d4,d5])
                         lineUpPoints = np.array([p1,p2,p3,p4,p5])
