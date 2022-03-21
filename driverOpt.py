@@ -9,6 +9,8 @@ driverCosts = driverData["COST"]
 qualiPos    = driverData["QUALIPOS"]
 racePos     = driverData["RACEPOS"]
 
+currentTeam = ["MER","LEC","SAI","NOR","BOT","MAG"]
+
 qualiPoints  = np.array([10,  9, 8, 7, 6, 5,4,3,2,1,0,0,0,0,0,0,0,0,0,0])
 racePoints   = np.array([25+5,18,15,12,10,8,6,4,2,1,0,0,0,0,0,0,0,0,0,0])
 
@@ -96,7 +98,16 @@ for team in teamsList:
                         driverLineUp = np.array([d1,d2,d3,d4,d5])
                         lineUpPoints = np.array([p1,p2,p3,p4,p5])
                         turboPoint   = np.max(lineUpPoints[lineUpCosts<=20.])
-                        totPoints    = np.sum(lineUpPoints)+teamPoints+turboPoint
+                        """ Points reduction for switching """
+                        if(team in currentTeam):
+                            numDiff = 0
+                        else:
+                            numDiff = 1
+                        for dLU in driverLineUp:
+                            if(dLU not in currentTeam):
+                                numDiff += 1
+                        switchCost   = np.min([0,-10.*(numDiff-3)])
+                        totPoints    = np.sum(lineUpPoints)+teamPoints+turboPoint+switchCost
                         if totPoints>maxPoints:
                             bestDrivers = driverLineUp
                             bestTeam    = team
@@ -104,7 +115,7 @@ for team in teamsList:
                             maxPoints   = totPoints
                             bestCost    = totalCost
 
-""" Resutls! """
+""" Results! """
 print "Drivers List: ",bestDrivers
 print "Constructors: ",bestTeam
 print "Turbo Driver: ",turboDrive
