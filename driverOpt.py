@@ -8,11 +8,20 @@ driverTeam  = driverData["TEAM"].values
 driverCosts = driverData["COST"].values
 qualiPos    = driverData["QUALIPOS"].values
 racePos     = driverData["RACEPOS"].values
+raceStdDev  = driverData["RACESTDDEV"].values
 pFinish     = driverData["PFINISH"].values
 pDNF        = 1.-pFinish
 
+""" Randomly distributes the positions with user specified std dev """
+randomPositions = [np.random.normal(rP,stdDev) for rP,stdDev in zip(racePos,raceStdDev)]
+sortedRandPos, sortedDrivers = zip(*sorted(zip(randomPositions,driverList)))
+sortedRandPos, sortedDrivers = np.array(sortedRandPos), np.array(sortedDrivers)
+sortedRandPos = np.arange(1,21,1)
+racePos       = np.array([sortedRandPos[np.where(sortedDrivers==dL)[0][0]] for dL in driverList])
+
 currentTeam = ["MER","LEC","SAI","NOR","BOT","MAG"]
 
+""" Quali and race points, assumes that P1 gets fastest lap """
 qualiPoints  = np.array([10,  9, 8, 7, 6, 5,4,3,2,1,0,0,0,0,0,0,0,0,0,0])
 racePoints   = np.array([25+5,18,15,12,10,8,6,4,2,1,0,0,0,0,0,0,0,0,0,0])
 
